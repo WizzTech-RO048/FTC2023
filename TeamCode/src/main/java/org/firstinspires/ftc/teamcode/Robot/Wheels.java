@@ -32,7 +32,7 @@ public class Wheels {
     private final double encoderTicksPerSecond;
 
 
-    private final BNO055IMU imu_sensor;
+    // private final BNO055IMU imu_sensor;
     private final Telemetry telemetry;
     private final ScheduledExecutorService scheduler;
     private final HardwareMap map;
@@ -45,7 +45,7 @@ public class Wheels {
 
     Wheels(@NonNull final Parameters parameters) {
         telemetry = Objects.requireNonNull(parameters.telemetry, "Telemetry object was not set");
-        imu_sensor = Objects.requireNonNull(parameters.imu_sensor, "IMU sensor was not set");
+        // imu_sensor = Objects.requireNonNull(parameters.imu_sensor, "IMU sensor was not set");
         scheduler = Objects.requireNonNull(parameters.scheduler, "Scheduler was not set");
         map = Objects.requireNonNull(parameters.hardwareMap, "HardwareMap was not passed");
 
@@ -124,7 +124,7 @@ public class Wheels {
     public static class Parameters {
         public HardwareMap hardwareMap = null;
         public Telemetry telemetry = null;
-        public BNO055IMU imu_sensor = null;
+        // public BNO055IMU imu_sensor = null;
         public ScheduledExecutorService scheduler = null;
         public double encoder_resolution = 0.0;
         public double rpm = 0;
