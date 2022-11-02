@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "org.firstinspires.ftc.teamcode.TeamCode-mergeDebugResources-16:/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
+            "outputFile": "org.firstinspires.ftc.teamcode.TeamCode-mergeDebugResources-19:/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
             "map": [
                 {
-                    "source": "/Users/vladt/Desktop/vladt/wizztech/FTC-Power-Play-2023/code/FTC2023/FtcRobotController/build/intermediates/packaged_res/debug/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
+                    "source": "C:\\Users\\Pavel\\Documents\\ftcpowernew\\FtcRobotController\\build\\intermediates\\packaged_res\\debug\\values-sw720dp-land-v13\\values-sw720dp-land-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
