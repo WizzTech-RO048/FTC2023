@@ -42,7 +42,7 @@ public class Robot {
 
         // TODO: add the slider
         Slider.Parameters slider_parameters = new Slider.Parameters();
-        slider_parameters.armRaisedPosition = 5200; // 5200 is the maximum
+        slider_parameters.armRaisedPosition = 8500; // 5200 is the maximum
         slider_parameters.telemetry = telemetry;
         slider_parameters.hardwareMap = hardwareMap;
         slider_parameters.scheduler = scheduler;
