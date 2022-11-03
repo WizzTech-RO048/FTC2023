@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Stream;
 
 
 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -37,8 +39,23 @@ public class Wheels {
     private final ScheduledExecutorService scheduler;
     private final HardwareMap map;
 
+    // TODO: find the right configuration of the directions of the engines
     private static DcMotorEx getEngine(HardwareMap map, String name) {
+        /*
+        * Initializing an individual engine by hardware mapping the name, setting the direction and the
+        * running mode.
+        *   @param map HardwareMap for reading the engine from the driver station configuration
+        *   @param name The name of the motor in the driver station configuration
+        *
+        *   @returns motor: The engine, as a DcMotorEx type of variable
+        * */
+
         DcMotorEx motor = map.get(DcMotorEx.class, name);
+        if (name.contains("left")) {
+            motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        } else {
+            motor.setDirection(DcMotorSimple.Direction.FORWARD);
+        }
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         return motor;
     }
@@ -49,7 +66,7 @@ public class Wheels {
         scheduler = Objects.requireNonNull(parameters.scheduler, "Scheduler was not set");
         map = Objects.requireNonNull(parameters.hardwareMap, "HardwareMap was not passed");
 
-
+        // --------- setting up the engines individually -----
         for (String motor_name : MOTORS_NAMES) {
             engines.add(getEngine(map, motor_name));
         }
@@ -73,13 +90,16 @@ public class Wheels {
     }
 
     private void useBrakes(boolean condition) {
+        /*
+        * A function that sets the ZeroPowerBehavior of an engine to braking when the engine power is 0.
+        * This is why a motor will stay still when it is not used.
+        * */
         DcMotor.ZeroPowerBehavior behavior = condition ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
         for(DcMotor engine : engines) {
             engine.setZeroPowerBehavior(behavior);
         }
     }
 
-    // TODO: check why we need this specific version of the API
     public void move(double x, double y, double r) {
         // ------ normalizing the values from the joysticks --------
         x = Math.max(-1, Math.min(x, 1));
