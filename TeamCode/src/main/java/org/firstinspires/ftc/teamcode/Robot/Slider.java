@@ -32,7 +32,7 @@ public class Slider {
         hardwareMap = Objects.requireNonNull(parameters.hardwareMap, "HardwareMap was not set up");
 
         slider = hardwareMap.get(DcMotorEx.class, "slider");
-        slider.setDirection(DcMotorSimple.Direction.FORWARD);
+        slider.setDirection(DcMotorSimple.Direction.REVERSE);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -41,25 +41,27 @@ public class Slider {
 
     private ScheduledFuture<?> lastMove = null;
 
-    public enum Position {
-        BASE(0.1),
-        DOWN(0.3),
-        MID(0.6),
-        TOP(0.9);
-
-        private final double position;
-
-        Position(double position) {
-            this.position = position;
-        }
-    }
-
-    public ScheduledFuture<?> raiseArm(double positionPercentage, double raisePower) {
+//    public enum Position {
+//        BASE(0.0),
+//        DOWN(0.02),
+//        MID(0.7),
+//        TOP(1.0);
+//
+//        private final double position;
+//
+//        Position(double position) {
+//            this.position = position;
+//        }
+//    }
+    private ScheduledFuture<?> raiseSlider(double positionPercentage, double raisePower) {
         if (!Utils.isDone(lastMove) && !lastMove.cancel(true)) {
             return null;
         }
 
         int targetPosition = (int) Math.floor(Utils.interpolate(0, armRaisedPosition, positionPercentage, 1));
+        if (positionPercentage == 0.0) {
+            targetPosition = 0;
+        }
         int initialPosition = slider.getCurrentPosition();
 
         if (targetPosition == initialPosition) {
@@ -73,6 +75,10 @@ public class Slider {
         lastMove = Utils.poll(scheduler, () -> !slider.isBusy(), () -> slider.setPower(0), 10, TimeUnit.MILLISECONDS);
 
         return lastMove;
+    }
+
+    public ScheduledFuture<?> raise(double position, double raise_power) {
+        return raiseSlider(position, raise_power);
     }
 
     public void getCurrentPositionSlider() {
