@@ -1,10 +1,7 @@
-
 package org.firstinspires.ftc.teamcode.autonomy;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -55,9 +52,7 @@ public class new_autonomy extends LinearOpMode
 
             }
         });
-
         telemetry.setMsTransmissionInterval(50);
-
 
         while (!isStarted() && !isStopRequested())
         {
@@ -118,10 +113,6 @@ public class new_autonomy extends LinearOpMode
             sleep(20);
         }
 
-
-
-
-
         if(tagOfInterest != null)
         {
             telemetry.addLine("Tag snapshot:\n");
@@ -134,7 +125,7 @@ public class new_autonomy extends LinearOpMode
             telemetry.update();
         }
 
-        // the ply button was clicked
+        // the play button was clicked
         // movement phase
 
     }

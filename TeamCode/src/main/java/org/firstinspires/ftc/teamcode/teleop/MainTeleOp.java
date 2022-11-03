@@ -1,21 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-
-@TeleOp(name = "TeleOpNew")
-public class TeleOpTwo_Alfa extends OpMode {
-    private RobotNew robot;
-    private ControllerNew controller;
+@TeleOp(name = "TeleOpV1")
+public class MainTeleOp extends OpMode {
+    private Robot robot;
+    private Controller controller;
     private boolean arcadeMode = false;
 
     @Override
     public void init() {
-        robot = new RobotNew(hardwareMap, telemetry);
+        robot = new Robot(hardwareMap, telemetry);
         robot.runUsingEncoders();
         robot.runWithZeroPowerBehavior();
-        controller = new ControllerNew(gamepad1);
+        controller = new Controller(gamepad1);
     }
 
     @Override
@@ -59,3 +58,4 @@ public class TeleOpTwo_Alfa extends OpMode {
         robot.setMotors(lf, lr, rf, rr);
     }
 }
+

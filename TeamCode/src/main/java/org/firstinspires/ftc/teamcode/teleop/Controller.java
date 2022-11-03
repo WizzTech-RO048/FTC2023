@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode;
-
+package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class ControllerNew {
-    private Gamepad gamepad;
+public class Controller {
+    private final Gamepad gamepad;
 
     private int dpad_up, dpad_down, dpad_left, dpad_right;
     private int x, y, a, b;
@@ -12,7 +11,7 @@ public class ControllerNew {
     public double left_stick_x, right_stick_x, left_stick_y, right_stick_y;
     public double left_trigger, right_trigger;
 
-    public ControllerNew(Gamepad g) {
+    public Controller(Gamepad g) {
         gamepad = g;
     }
 

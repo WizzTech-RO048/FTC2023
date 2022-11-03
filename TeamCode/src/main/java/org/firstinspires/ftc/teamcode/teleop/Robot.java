@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-public class RobotNew {
+public class Robot {
     private final HardwareMap hardwareMap;
     private final Telemetry telemetry;
 
@@ -23,7 +23,7 @@ public class RobotNew {
     private Orientation angles;
     private Acceleration gravity;
 
-    public RobotNew(final HardwareMap _hardwareMap, final Telemetry _telemetry) {
+    public Robot(final HardwareMap _hardwareMap, final Telemetry _telemetry) {
         hardwareMap = _hardwareMap;
         telemetry = _telemetry;
 
@@ -108,4 +108,5 @@ public class RobotNew {
         rf.setPower(_rf / scale);
         rr.setPower(_rr / scale);
     }
-    }
+}
+
