@@ -5,11 +5,13 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 
+// TODO: configure the robot controller for the driver
 @RequiresApi(api = Build.VERSION_CODES.N)
 @TeleOp(name="FTC2023")
 public class MainTeleOp extends OpMode {
@@ -20,12 +22,17 @@ public class MainTeleOp extends OpMode {
     private double speed_limit;
     private int k = 0;
     private double raise_percentage;
+    private boolean useArcadeMode; // TODO: add arcade / headless movement
     public double RAISE_POWER = 1.0;
-    private ScheduledFuture<?> lastSliderRaised;
+    private ScheduledFuture<?> lastSliderRaised1, lastSliderRaised2;
 
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, telemetry, Executors.newScheduledThreadPool(1));
+        robot = new Robot(
+                hardwareMap,
+                telemetry,
+                Executors.newScheduledThreadPool(1)
+        );
         controller1 = new Controller(gamepad1);
 
         // ---------- raising the slider a little bit ------------
@@ -44,31 +51,30 @@ public class MainTeleOp extends OpMode {
         controller1.update();
 
         // -------- controlling the robot movement ------
-        if (controller1.leftBumper()) {
-            speed_limit = 0.85;
-        } else {
-            speed_limit = 0.5;
-        }
-        double x = controller1.left_stick_x * speed_limit;
-        double y = -controller1.left_stick_y * speed_limit;
-        double r = -controller1.right_stick_x * speed_limit;
-        robot.wheels.move(x, y, r);
+        double x = -controller1.left_stick_x;
+        double y = controller1.left_stick_y;
+        double r = -controller1.right_stick_x;
 
-        // TODO: apply a button to enable/disable headless moving
-        // TODO: watch out for the differences between buttons dualshock 4
+        robot.wheels.setMotors(y, x, r, true);
 
         // ------- printing the slider position --------
+        // TODO: fix the telemetry printing
         robot.slider.getCurrentPositionSlider();
+        telemetry.addData("Raise percentage", raise_percentage);
+
+        robot.slider.getCurrentPositionSlider();
+
+        // TODO: apply a button to enable/disable headless moving
 
         // ------- controlling the gripper -------
         if (controller1.dpadRightOnce()) {
-            robot.gripper.release();
-        } else if (controller1.dpadLeftOnce()) {
             robot.gripper.grab();
+        } else if (controller1.dpadLeftOnce()) {
+            robot.gripper.release();
         }
 
         // ------- controlling the slider on predefined positions -----
-        if(!Utils.isDone(lastSliderRaised)) {
+        if(!Utils.isDone(lastSliderRaised1) || !Utils.isDone(lastSliderRaised2)) {
             return ;
         }
         if (controller1.YOnce()) {
@@ -89,10 +95,15 @@ public class MainTeleOp extends OpMode {
         } else if (raise_percentage >= 0.1) {
             raise_percentage -= (double) (controller1.left_trigger / 10);
         }
-        lastSliderRaised = robot.slider.raise(raise_percentage, RAISE_POWER);
+
+        telemetry.addData("raise_percentage", raise_percentage);
+
+        lastSliderRaised1 = robot.slider.raiseSlider(raise_percentage, RAISE_POWER);
 
         // ------- printing out the position of the slider --------
         telemetry.addData("Slider position", raise_percentage);
+
+        telemetry.update();
     }
 
 }
