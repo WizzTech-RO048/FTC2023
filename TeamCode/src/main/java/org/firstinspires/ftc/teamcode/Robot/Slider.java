@@ -41,19 +41,7 @@ public class Slider {
 
     private ScheduledFuture<?> lastMove = null;
 
-//    public enum Position {
-//        BASE(0.0),
-//        DOWN(0.02),
-//        MID(0.7),
-//        TOP(1.0);
-//
-//        private final double position;
-//
-//        Position(double position) {
-//            this.position = position;
-//        }
-//    }
-    private ScheduledFuture<?> raiseSlider(double positionPercentage, double raisePower) {
+    public ScheduledFuture<?> raiseSlider(double positionPercentage, double raisePower) {
         if (!Utils.isDone(lastMove) && !lastMove.cancel(true)) {
             return null;
         }
