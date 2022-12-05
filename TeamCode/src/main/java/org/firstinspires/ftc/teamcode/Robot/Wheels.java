@@ -12,18 +12,26 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import kotlin.text.CharDirectionality;
+import org.firstinspires.ftc.robotcore.external.Function;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import com.qualcomm.hardware.*;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.function.BiFunction;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 
 // TODO: add the new robot movement code
@@ -36,12 +44,17 @@ public class Wheels {
             "right_rear"
     );
 
+    private double encoderResolution = 384.5;
+    private int rpm = 435;
+
     private List<DcMotorEx> engines = new ArrayList<>();
     public DcMotor lf, lr, rf, rr;
 
     private final Telemetry telemetry;
     private final ScheduledExecutorService scheduler;
     private final HardwareMap map;
+    private final double encoderTicksPerSecond;
+
 
     // ------- imu variables ---------
     private final Imu imu_sensor;
@@ -58,11 +71,27 @@ public class Wheels {
         imu_sensor.loop();
 
         // --------- setting up the engines individually -----
-        lf = setEngine(map, true, true, "lf");
-        lr = setEngine(map, true, true,"lr");
-        rf = setEngine(map, true, true, "rf");
-        rr = setEngine(map, true, true, "rr");
+        lf = setEngine(map, true, true, "left_front");
+        lr = setEngine(map, true, true,"left_rear");
+        rf = setEngine(map, true, true, "right_front");
+        rr = setEngine(map, true, true, "right_rear");
 
+
+
+        if (encoderResolution != 0 && rpm != 0) {
+            encoderTicksPerSecond = (rpm / 60) * encoderResolution;
+            useEncoders(true);
+        } else {
+            encoderTicksPerSecond = 0;
+            useEncoders(false);
+        }
+
+    }
+
+    public void useEncoders(boolean shouldUse) {
+        DcMotor.RunMode mode = shouldUse ? DcMotor.RunMode.RUN_USING_ENCODER : DcMotor.RunMode.RUN_WITHOUT_ENCODER;
+
+        engines.forEach(engine -> engine.setMode(mode));
     }
 
     private static DcMotor setEngine(HardwareMap map,
@@ -95,12 +124,12 @@ public class Wheels {
         return engine;
     }
 
-    public void setMotors(double x, double y, double rotation, boolean useArcadeMode) {
+    public void move1(double x, double y, double rotation, boolean useArcadeMode) {
         x = Math.pow(x, 3.0);
         y = Math.pow(y, 3.0);
         rotation = Math.pow(rotation, 3.0);
 
-        final double direction = Math.atan2(x, y) + (useArcadeMode ? 0.0 : imu_sensor.getHeading());
+        final double direction = Math.atan2(x, y) + (useArcadeMode ? imu_sensor.getHeading() : 0.0);
         final double speed = Math.min(1.0, Math.sqrt(x * x + y * y));
 
         final double lf = speed * Math.sin(direction + Math.PI / 4.0) + rotation;
@@ -145,4 +174,169 @@ public class Wheels {
 
         public double rpm = 0;
     }
+
+    private void setPower(DcMotorEx engine, double power) {
+        if (engine.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
+            engine.setVelocity(Math.round(power * encoderTicksPerSecond));
+        } else {
+            engine.setPower(power);
+        }
+    }
+
+    private static double normalize(double val) {
+        return Utils.clamp(val, -1, 1);
+    }
+    public void move(double x, double y, double r) {
+        x = normalize(x);
+        y = normalize(y);
+        r = normalize(r);
+
+        double[] input = {
+                y + x + r, // left front
+                y - x + r, // left rear
+                y - x - r, // right front
+                y + x - r  // right rear
+        };
+
+        double highest = Arrays.stream(input).map(Math::abs).reduce(1, Math::max);
+
+        IntStream.range(0, input.length).forEach(i -> setPower(engines.get(i), input[i] / highest));
+    }
+
+    @FunctionalInterface
+    private interface PositionGetter extends Function<Position, Double> {
+    }
+
+    @FunctionalInterface
+    private interface PositionChecker extends BiFunction<Double, Double, Boolean> {
+    }
+
+    @FunctionalInterface
+    private interface MovementPowerGetter extends Function<Double, MovementPower> {
+    }
+
+    public enum MoveDirection {
+        FORWARD(p -> p.unit.toMm(p.x), (c, e) -> c >= e, power -> new MovementPower(0, 0, power)),
+        BACKWARD(p -> p.unit.toMm(p.x), (c, e) -> c <= e, power -> new MovementPower(0, 0, -power)),
+        LEFT(p -> p.unit.toMm(p.y), (c, e) -> c <= e, power -> new MovementPower(power, 0, 0)),
+        RIGHT(p -> p.unit.toMm(p.y), (c, e) -> c <= e, power -> new MovementPower(-power, 0, 0));
+
+        private final PositionGetter positionGetter;
+        private final PositionChecker positionChecker;
+        private final MovementPowerGetter movementPowerGetter;
+        private final boolean isPositive;
+
+        MoveDirection(PositionGetter getter, PositionChecker checker, MovementPowerGetter powerGetter) {
+            positionGetter = getter;
+            positionChecker = checker;
+            movementPowerGetter = powerGetter;
+            isPositive = positionChecker.apply(2.0, 1.0);
+        }
+
+        public boolean hasReachedEnd(double current, double end) {
+            return positionChecker.apply(current, end);
+        }
+
+        public double getCoordinate(Position position) {
+            return positionGetter.apply(position);
+        }
+
+        public double getMovement(double meters) {
+            if (meters < 1e-3) {
+                throw new IllegalArgumentException("movement distance must be greater than 1mm");
+            }
+            double movement = meters * 1000; // convert to mm
+            if (isPositive) {
+                return movement;
+            }
+            return -movement; // the robot moves backward
+        }
+
+        public MovementPower getPower(double initialPower, double current, double end) {
+            if (initialPower < 1e-2) {
+                throw new IllegalArgumentException("movement power must be greater or equal to 1%");
+            }
+
+            return movementPowerGetter.apply(initialPower);
+        }
+
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case FORWARD:
+                    return "Forward";
+                case BACKWARD:
+                    return "Backward";
+                case LEFT:
+                    return "Left";
+                case RIGHT:
+                    return "Right";
+                default:
+                    return "None";
+            }
+        }
+    }
+
+    private static class MovementPower {
+        public final double x, y, r;
+
+        MovementPower(double x, double y, double r) {
+            this.x = x;
+            this.y = y;
+            this.r = r;
+        }
+
+        @Override
+        public String toString() {
+            return "MovementPower{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", r=" + r +
+                    '}';
+        }
+    }
+
+    private ScheduledFuture<?> lastMovement = null;
+    private boolean isMoving() {
+        return !Utils.isDone(lastMovement);
+    }
+
+    public ScheduledFuture<?> moveFor(double meters, double inputPower, @NonNull MoveDirection direction) {
+        if (isMoving() && !lastMovement.cancel(true)) {
+            return null;
+        }
+
+        imu_sensor.imu_sensor.startAccelerationIntegration(new Position(), new Velocity(), 1);
+
+        double movement = direction.getMovement(meters);
+
+        lastMovement = Utils.poll(
+                scheduler,
+                () -> {
+                    double current = direction.getCoordinate(imu_sensor.imu_sensor.getPosition());
+                    if (direction.hasReachedEnd(current, movement)) {
+                        return true;
+                    }
+
+                    MovementPower power = direction.getPower(inputPower, current, movement);
+
+                    move(power.x, power.y, power.r);
+                    return false;
+                },
+                () -> {
+                    stopMotors();
+                    imu_sensor.imu_sensor.stopAccelerationIntegration();
+                },
+                1,
+                MILLISECONDS
+        );
+
+        return lastMovement;
+    }
+
+    private void stopMotors() {
+        engines.forEach(engine -> setPower(engine, 0.0));
+    }
+
 }
