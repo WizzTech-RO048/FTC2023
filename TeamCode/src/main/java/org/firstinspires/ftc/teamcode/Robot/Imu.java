@@ -17,7 +17,7 @@ public class Imu {
 
     private HardwareMap map;
     private Telemetry telemetry;
-    private BNO055IMU imu_sensor;
+    public BNO055IMU imu_sensor;
 
     Imu(@NonNull final Parameters parameters) {
         telemetry = Objects.requireNonNull(parameters.telemetry, "Telemetry object was not set up");
