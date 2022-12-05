@@ -21,7 +21,7 @@ public class MainTeleOp extends OpMode {
 
     private double speed_limit;
     private int k = 0;
-    private double raise_percentage;
+    private int raise_percentage;
     private boolean useArcadeMode; // TODO: add arcade / headless movement
     public double RAISE_POWER = 1.0;
     private ScheduledFuture<?> lastSliderRaised1, lastSliderRaised2;
@@ -55,7 +55,7 @@ public class MainTeleOp extends OpMode {
         double y = controller1.left_stick_y;
         double r = -controller1.right_stick_x;
 
-        robot.wheels.setMotors(y, x, r, true);
+        robot.wheels.move1(y, x, r, true);
 
         // ------- printing the slider position --------
         // TODO: fix the telemetry printing
@@ -64,12 +64,10 @@ public class MainTeleOp extends OpMode {
 
         robot.slider.getCurrentPositionSlider();
 
-        // TODO: apply a button to enable/disable headless moving
-
         // ------- controlling the gripper -------
-        if (controller1.dpadRightOnce()) {
+        if (controller1.dpadUpOnce()) {
             robot.gripper.grab();
-        } else if (controller1.dpadLeftOnce()) {
+        } else if (controller1.dpadDownOnce()) {
             robot.gripper.release();
         }
 
@@ -78,25 +76,28 @@ public class MainTeleOp extends OpMode {
             return ;
         }
         if (controller1.YOnce()) {
-            raise_percentage = 1.0;
+            robot.gripper.grab();
+            raise_percentage = 8000;
         } else if (controller1.BOnce()) {
-            raise_percentage = 0.7;
+            robot.gripper.grab();
+            raise_percentage = 5200;
         } else if (controller1.XOnce()) {
-            raise_percentage = 0.02;
+            robot.gripper.grab();
+            raise_percentage = 3000;
         } else if (controller1.AOnce()) {
-            raise_percentage = 0.0;
+            raise_percentage = 0;
         } else {
             return ;
         }
 
-        // -------- controlling the arm --------
-        if (raise_percentage <= 0.9) {
-            raise_percentage += (double) (controller1.right_trigger / 10);
-        } else if (raise_percentage >= 0.1) {
-            raise_percentage -= (double) (controller1.left_trigger / 10);
-        }
+            // -------- controlling the arm --------
+            if (raise_percentage <= 0.9) {
+                raise_percentage += (double) (controller1.right_trigger * 100);
+            } else if (raise_percentage >= 0.1) {
+                raise_percentage -= (double) (controller1.left_trigger * 100);
+            }
 
-        telemetry.addData("raise_percentage", raise_percentage);
+//        raise_percentage = raise_percentage + controller1.right_stick_y;
 
         lastSliderRaised1 = robot.slider.raiseSlider(raise_percentage, RAISE_POWER);
 
