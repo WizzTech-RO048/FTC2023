@@ -41,16 +41,19 @@ public class Slider {
 
     private ScheduledFuture<?> lastMove = null;
 
-    public ScheduledFuture<?> raiseSlider(double positionPercentage, double raisePower) {
+    public ScheduledFuture<?> raiseSlider(int positionPercentage, double raisePower) {
         if (!Utils.isDone(lastMove) && !lastMove.cancel(true)) {
             return null;
         }
 
-        int targetPosition = (int) Math.floor(Utils.interpolate(0, armRaisedPosition, positionPercentage, 1));
+//        int targetPosition = (int) Math.floor(Utils.interpolate(0, armRaisedPosition, positionPercentage, 1));
+        int targetPosition = positionPercentage;
         if (positionPercentage == 0.0) {
             targetPosition = 0;
         }
         int initialPosition = slider.getCurrentPosition();
+
+        telemetry.addData("position", initialPosition);
 
         if (targetPosition == initialPosition) {
             return null;
@@ -65,7 +68,7 @@ public class Slider {
         return lastMove;
     }
 
-    public ScheduledFuture<?> raise(double position, double raise_power) {
+    public ScheduledFuture<?> raise(int position, double raise_power) {
         return raiseSlider(position, raise_power);
     }
 
