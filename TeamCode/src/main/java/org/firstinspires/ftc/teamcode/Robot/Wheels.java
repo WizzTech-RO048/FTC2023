@@ -58,10 +58,10 @@ public class Wheels {
         imu_sensor.loop();
 
         // --------- setting up the engines individually -----
-        lf = setEngine(map, true, true, "lf");
-        lr = setEngine(map, true, true,"lr");
-        rf = setEngine(map, true, true, "rf");
-        rr = setEngine(map, true, true, "rr");
+        lf = setEngine(map, true, true, "left_front");
+        lr = setEngine(map, true, true,"left_rear");
+        rf = setEngine(map, true, true, "right_front");
+        rr = setEngine(map, true, true, "right_rear");
 
     }
 
