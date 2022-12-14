@@ -11,19 +11,46 @@ public class Detector {
 
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
-    public static final int LEFT = 1;
-    public static final int MID = 2;
-    public static final int RIGHT = 3;
+     public enum Position {
+        LEFT(1),
+        MIDDLE(2),
+        RIGHT(3);
 
-    public AprilTagDetection detectPosition(ArrayList<AprilTagDetection> current_positions,
+        private final int i;
+        Position(int i) {
+            this.i = i;
+        }
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case LEFT:
+                    return "LEFT";
+                case MIDDLE:
+                    return "MIDDLE";
+                case RIGHT:
+                    return "RIGHT";
+                default:
+                    return "None";
+            }
+        }
+    }
+
+    public AprilTagDetection detectPosition(ArrayList<AprilTagDetection> current_position,
                                             Telemetry telemetry) {
+        /**
+         * This function determined on which position the cone was set.
+         *
+         * @param current_positions
+         * @param telemetry Using the telemetry to output data
+         */
 
         AprilTagDetection detected_position = null;
 
         boolean tag_found = false;
 
-        for (AprilTagDetection tag : current_positions) {
-            if (tag.id == LEFT || tag.id == RIGHT || tag.id == MID) {
+        for (AprilTagDetection tag : current_position) {
+            if (tag.id == Position.LEFT || tag.id == Position.MIDDLE || tag.id == Position.RIGHT) {
                 detected_position = tag;
                 tag_found = true;
                 break;
