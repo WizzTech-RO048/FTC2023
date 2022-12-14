@@ -41,39 +41,35 @@ public class Slider {
 
     private ScheduledFuture<?> lastMove = null;
 
-    public ScheduledFuture<?> raiseSlider(double positionPercentage, double raisePower) {
+    public ScheduledFuture<?> raiseSlider(int targetPositionValue, double raisePower) {
         if (!Utils.isDone(lastMove) && !lastMove.cancel(true)) {
             return null;
         }
 
-        int targetPosition = (int) Math.floor(Utils.interpolate(0, armRaisedPosition, positionPercentage, 1));
-        if (positionPercentage == 0.0) {
-            targetPosition = 0;
-        }
+//        int targetPosition = (int) Math.floor(Utils.interpolate(0, armRaisedPosition, positionPercentage, 1));
         int initialPosition = slider.getCurrentPosition();
 
-        if (targetPosition == initialPosition) {
+        if (targetPositionValue == initialPosition) {
             return null;
         }
 
-        slider.setTargetPosition(targetPosition);
+        slider.setTargetPosition(targetPositionValue);
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slider.setPower(targetPosition > initialPosition ? raisePower : -raisePower);
+        slider.setPower(targetPositionValue > initialPosition ? raisePower : -raisePower);
 
         lastMove = Utils.poll(scheduler, () -> !slider.isBusy(), () -> slider.setPower(0), 10, TimeUnit.MILLISECONDS);
 
         return lastMove;
     }
 
-    public ScheduledFuture<?> raise(double position, double raise_power) {
-        return raiseSlider(position, raise_power);
-    }
-
-    public void getCurrentPositionSlider() {
-        telemetry.addData("Slider position", slider.getCurrentPosition());
+    public int getCurrentPositionSlider() {
+        int slider_position = slider.getCurrentPosition();
+        return slider_position;
     }
 
     public void stopSlider() {
+        // ----- stopping the slider moving -----
+//        lastMove.cancel(true);
         slider.setPower(0.0);
     }
 
