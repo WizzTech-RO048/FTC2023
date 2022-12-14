@@ -69,9 +69,9 @@ public class MainTeleOp extends OpMode {
         } else if (controller1.YOnce()) {
             raise_value = 4000;
         } else if (controller1.BOnce()) {
-            raise_value = 2500;
+            raise_value = 2900;
         } else if (controller1.XOnce()) {
-            raise_value = 1000;
+            raise_value = 1400;
         } else if (controller1.AOnce()) {
             raise_value = 0;
         } else {
@@ -91,9 +91,8 @@ public class MainTeleOp extends OpMode {
         }
 
         // ------- moving the slider -------
-        if (!Utils.isDone(lastSliderRaised1)) {
-            lastSliderRaised1 = robot.slider.raiseSlider(raise_value, RAISE_POWER);
-        }
+        lastSliderRaised1 = robot.slider.raiseSlider(raise_value, RAISE_POWER);
+
 
         // ------- printing the slider position --------
         // TODO: fix the telemetry printing
