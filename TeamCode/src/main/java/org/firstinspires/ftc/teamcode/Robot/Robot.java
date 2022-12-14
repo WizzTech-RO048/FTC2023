@@ -48,6 +48,9 @@ public class Robot {
         slider = new Slider(slider_parameters);
     }
 
+    public Telemetry getTelemetry() {
+        return telemetry;
+    }
 
     public void stopRobot() {
         wheels.stopEngines();
