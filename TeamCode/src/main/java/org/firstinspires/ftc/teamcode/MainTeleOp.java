@@ -52,7 +52,7 @@ public class MainTeleOp extends OpMode {
         double y = controller1.left_stick_y;
         double r = -controller1.right_stick_x;
 
-        robot.wheels.setMotors(y, x, r, true);
+        robot.wheels.move(y, x, r, true);
 
         // TODO: apply a button to enable/disable headless moving
 
@@ -64,12 +64,14 @@ public class MainTeleOp extends OpMode {
         }
 
         // ------- controlling the slider on predefined positions -----
-        if (controller1.YOnce()) {
-            raise_value = 8000;
+        if(!Utils.isDone(lastSliderRaised1)) {
+            return ;
+        } else if (controller1.YOnce()) {
+            raise_value = 4000;
         } else if (controller1.BOnce()) {
-            raise_value = 5000;
+            raise_value = 2500;
         } else if (controller1.XOnce()) {
-            raise_value = 3000;
+            raise_value = 1000;
         } else if (controller1.AOnce()) {
             raise_value = 0;
         } else {
@@ -98,7 +100,7 @@ public class MainTeleOp extends OpMode {
         telemetry.addData("Raise value target", raise_value);
         telemetry.addData("Slider position", robot.slider.getCurrentPositionSlider());
 
-        telemetry.update();
+//        telemetry.update();
     }
 
 }

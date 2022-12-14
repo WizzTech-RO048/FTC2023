@@ -95,7 +95,7 @@ public class Wheels {
         return engine;
     }
 
-    public void setMotors(double x, double y, double rotation, boolean useArcadeMode) {
+    public void move(double x, double y, double rotation, boolean useArcadeMode) {
         x = Math.pow(x, 3.0);
         y = Math.pow(y, 3.0);
         rotation = Math.pow(rotation, 3.0);
