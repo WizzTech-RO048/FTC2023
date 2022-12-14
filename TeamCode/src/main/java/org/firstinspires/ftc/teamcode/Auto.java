@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Autonomy.Detector;
+import org.firstinspires.ftc.teamcode.Autonomy.States.State;
 import org.firstinspires.ftc.teamcode.Robot.Robot;
 import org.firstinspires.ftc.teamcode.Robot.Wheels;
 import org.openftc.apriltag.AprilTagDetection;
@@ -37,13 +38,9 @@ public class Auto extends LinearOpMode {
     int MIDDLE = 2;
     int RIGHT = 3;
 
-//    private Robot robot = new Robot(
-//            null,
-//            telemetry,
-//            Executors.newScheduledThreadPool(1)
-//    );
-
     AprilTagDetection tagOfInterest = null;
+    private Detector.Position detectedTag;
+    private State state;
 
     @Override
     public void runOpMode() {
@@ -122,9 +119,17 @@ public class Auto extends LinearOpMode {
         // the ply button was clicked
         // movement phase
 
-//        if (tagOfInterest.id == Detector.LEFT) {
-//            robot.wheels.moveFor(1.0, 0.5, Wheels.MoveDirection.FORWARD);
-//        }
+        if (tagOfInterest.id == LEFT) {
+            detectedTag = Detector.Position.LEFT;
+        } else if (tagOfInterest.id == RIGHT) {
+            detectedTag = Detector.Position.RIGHT;
+        } else if (tagOfInterest.id == MIDDLE) {
+            detectedTag = Detector.Position.MIDDLE;
+        } else {
+            detectedTag = null;
+        }
+
+        state = State.initial(hardwareMap, telemetry, detectedTag);
 
     }
 
