@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 
-// TODO: configure the robot controller for the driver
 @RequiresApi(api = Build.VERSION_CODES.N)
 @TeleOp(name="FTC2023")
 public class MainTeleOp extends OpMode {
@@ -22,7 +21,6 @@ public class MainTeleOp extends OpMode {
     private double speed_limit;
     private int k = 0;
     private int raise_value;
-    private boolean useArcadeMode; // TODO: add arcade / headless movement
     public double RAISE_POWER = 1.0;
     private ScheduledFuture<?> lastSliderRaised1;
 
@@ -54,8 +52,6 @@ public class MainTeleOp extends OpMode {
 
         robot.wheels.move(y, x, r, true);
 
-        // TODO: apply a button to enable/disable headless moving
-
         // ------- controlling the gripper -------
         if (controller1.dpadUp()) {
             robot.gripper.grab();
@@ -63,43 +59,32 @@ public class MainTeleOp extends OpMode {
             robot.gripper.release();
         }
 
-        // ------- controlling the slider on predefined positions -----
-        if(!Utils.isDone(lastSliderRaised1)) {
-            return ;
-        } else if (controller1.YOnce()) {
-            raise_value = 4000;
-        } else if (controller1.BOnce()) {
-            raise_value = 2900;
-        } else if (controller1.XOnce()) {
-            raise_value = 1400;
-        } else if (controller1.AOnce()) {
-            raise_value = 0;
-        } else {
-            return ;
-        }
+        // ------- controlling the slider positions -----
+        if(!Utils.isDone(lastSliderRaised1)) { return ; }
+        else if (controller1.YOnce()) { raise_value = 4000; }
+        else if (controller1.BOnce()) { raise_value = 2900; }
+        else if (controller1.XOnce()) { raise_value = 1400; }
+        else if (controller1.AOnce()) { raise_value = 0; }
+        else if (raise_value <= 0.9 && raise_value >= 0.0 && controller1.right_trigger != 0.0) {
+            raise_value = (int) (raise_value + controller1.right_trigger * 1000);
+        } else if (raise_value <= 0.9 && raise_value >= 0.0 && controller1.left_trigger != 0.0) {
+            raise_value = (int) (raise_value + controller1.left_trigger * 1000);
+        } else { return ; }
 
         // --------- canceling the slider movement ----------
         if (controller1.rightBumper()) {
             lastSliderRaised1 = robot.slider.raiseSlider(0, RAISE_POWER);
         }
 
-        // -------- controlling the slider using the triggers --------
-        if (raise_value <= 0.9) {
-            raise_value += controller1.right_trigger * 1000;
-        } else if (raise_value >= 0.1) {
-            raise_value -= controller1.left_trigger * 1000;
-        }
-
         // ------- moving the slider -------
         lastSliderRaised1 = robot.slider.raiseSlider(raise_value, RAISE_POWER);
-
 
         // ------- printing the slider position --------
         // TODO: fix the telemetry printing
         telemetry.addData("Raise value target", raise_value);
         telemetry.addData("Slider position", robot.slider.getCurrentPositionSlider());
 
-//        telemetry.update();
+        telemetry.update();
     }
 
 }
