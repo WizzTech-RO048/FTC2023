@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
 
-// TODO: add the new robot movement code
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class Wheels {
     private static final List<String> MOTORS_NAMES = Arrays.asList(
