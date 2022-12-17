@@ -55,6 +55,7 @@ public class MainTeleOp extends OpMode {
         // ------- controlling the gripper -------
         if (controller1.dpadUp()) {
             robot.gripper.grab();
+            // TODO: implement double grabbing
         } else if (controller1.dpadDown()) {
             robot.gripper.release();
         }
@@ -65,10 +66,10 @@ public class MainTeleOp extends OpMode {
         else if (controller1.BOnce()) { raise_value = 2900; }
         else if (controller1.XOnce()) { raise_value = 1400; }
         else if (controller1.AOnce()) { raise_value = 0; }
-        else if (raise_value <= 0.9 && raise_value >= 0.0 && controller1.right_trigger != 0.0) {
+        else if (raise_value <= 4000 && controller1.right_trigger != 0.0) {
             raise_value = (int) (raise_value + controller1.right_trigger * 1000);
-        } else if (raise_value <= 0.9 && raise_value >= 0.0 && controller1.left_trigger != 0.0) {
-            raise_value = (int) (raise_value + controller1.left_trigger * 1000);
+        } else if (raise_value >= 0 && controller1.left_trigger != 0.0) {
+            raise_value = (int) (raise_value - controller1.left_trigger * 1000);
         } else { return ; }
 
         // --------- canceling the slider movement ----------
