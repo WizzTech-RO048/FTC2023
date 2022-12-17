@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.Objects;
 
 public class Gripper {
-    private final double RELEASE_POSITION = 0.0;
+    private final double RELEASE_POSITION = 0.5;
     private final double GRAB_POSITION = 1.0;
 
     private final Telemetry telemetry;

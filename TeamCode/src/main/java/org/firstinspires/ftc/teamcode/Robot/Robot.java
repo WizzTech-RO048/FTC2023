@@ -39,7 +39,6 @@ public class Robot {
         gripper_parameters.hardwareMap = hardwareMap;
         gripper = new Gripper(gripper_parameters);
 
-        // TODO: add the slider
         Slider.Parameters slider_parameters = new Slider.Parameters();
         slider_parameters.armRaisedPosition = 6100; // 5200 is the maximum
         slider_parameters.telemetry = telemetry;

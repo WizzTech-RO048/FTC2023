@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
 
-// TODO: add the new robot movement code
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class Wheels {
     private static final List<String> MOTORS_NAMES = Arrays.asList(
@@ -58,10 +57,10 @@ public class Wheels {
         imu_sensor.loop();
 
         // --------- setting up the engines individually -----
-        lf = setEngine(map, true, true, "lf");
-        lr = setEngine(map, true, true,"lr");
-        rf = setEngine(map, true, true, "rf");
-        rr = setEngine(map, true, true, "rr");
+        lf = setEngine(map, true, true, "left_front");
+        lr = setEngine(map, true, true,"left_rear");
+        rf = setEngine(map, true, true, "right_front");
+        rr = setEngine(map, true, true, "right_rear");
 
     }
 
@@ -95,7 +94,7 @@ public class Wheels {
         return engine;
     }
 
-    public void setMotors(double x, double y, double rotation, boolean useArcadeMode) {
+    public void move(double x, double y, double rotation, boolean useArcadeMode) {
         x = Math.pow(x, 3.0);
         y = Math.pow(y, 3.0);
         rotation = Math.pow(rotation, 3.0);

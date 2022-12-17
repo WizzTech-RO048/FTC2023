@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 
-// TODO: configure the robot controller for the driver
 @RequiresApi(api = Build.VERSION_CODES.N)
 @TeleOp(name="FTC2023")
 public class MainTeleOp extends OpMode {
@@ -21,10 +20,9 @@ public class MainTeleOp extends OpMode {
 
     private double speed_limit;
     private int k = 0;
-    private double raise_percentage;
-    private boolean useArcadeMode; // TODO: add arcade / headless movement
+    private int raise_value;
     public double RAISE_POWER = 1.0;
-    private ScheduledFuture<?> lastSliderRaised1, lastSliderRaised2;
+    private ScheduledFuture<?> lastSliderRaised1;
 
     @Override
     public void init() {
@@ -34,9 +32,6 @@ public class MainTeleOp extends OpMode {
                 Executors.newScheduledThreadPool(1)
         );
         controller1 = new Controller(gamepad1);
-
-        // ---------- raising the slider a little bit ------------
-//        lastSliderRaised = robot.slider.raise(Slider.Position.BASE, RAISE_POWER);
 
         // --------- initializing the robot --------
         robot.gripper.release();
@@ -55,53 +50,40 @@ public class MainTeleOp extends OpMode {
         double y = controller1.left_stick_y;
         double r = -controller1.right_stick_x;
 
-        robot.wheels.setMotors(y, x, r, true);
-
-        // ------- printing the slider position --------
-        // TODO: fix the telemetry printing
-        robot.slider.getCurrentPositionSlider();
-        telemetry.addData("Raise percentage", raise_percentage);
-
-        robot.slider.getCurrentPositionSlider();
-
-        // TODO: apply a button to enable/disable headless moving
+        robot.wheels.move(y, x, r, true);
 
         // ------- controlling the gripper -------
-        if (controller1.dpadRightOnce()) {
+        if (controller1.dpadUp()) {
             robot.gripper.grab();
-        } else if (controller1.dpadLeftOnce()) {
+            // TODO: implement double grabbing
+        } else if (controller1.dpadDown()) {
             robot.gripper.release();
         }
 
-        // ------- controlling the slider on predefined positions -----
-        if(!Utils.isDone(lastSliderRaised1) || !Utils.isDone(lastSliderRaised2)) {
-            return ;
-        }
-        if (controller1.YOnce()) {
-            raise_percentage = 1.0;
-        } else if (controller1.BOnce()) {
-            raise_percentage = 0.7;
-        } else if (controller1.XOnce()) {
-            raise_percentage = 0.02;
-        } else if (controller1.AOnce()) {
-            raise_percentage = 0.0;
-        } else {
-            return ;
-        }
+        // ------- controlling the slider positions -----
+        if(!Utils.isDone(lastSliderRaised1)) { return ; }
+        else if (controller1.YOnce()) { raise_value = 4000; }
+        else if (controller1.BOnce()) { raise_value = 2900; }
+        else if (controller1.XOnce()) { raise_value = 1400; }
+        else if (controller1.AOnce()) { raise_value = 0; }
+        else if (raise_value <= 4000 && controller1.right_trigger != 0.0) {
+            raise_value = (int) (raise_value + controller1.right_trigger * 1000);
+        } else if (raise_value >= 0 && controller1.left_trigger != 0.0) {
+            raise_value = (int) (raise_value - controller1.left_trigger * 1000);
+        } else { return ; }
 
-        // -------- controlling the arm --------
-        if (raise_percentage <= 0.9) {
-            raise_percentage += (double) (controller1.right_trigger / 10);
-        } else if (raise_percentage >= 0.1) {
-            raise_percentage -= (double) (controller1.left_trigger / 10);
+        // --------- canceling the slider movement ----------
+        if (controller1.rightBumper()) {
+            lastSliderRaised1 = robot.slider.raiseSlider(0, RAISE_POWER);
         }
 
-        telemetry.addData("raise_percentage", raise_percentage);
+        // ------- moving the slider -------
+        lastSliderRaised1 = robot.slider.raiseSlider(raise_value, RAISE_POWER);
 
-        lastSliderRaised1 = robot.slider.raiseSlider(raise_percentage, RAISE_POWER);
-
-        // ------- printing out the position of the slider --------
-        telemetry.addData("Slider position", raise_percentage);
+        // ------- printing the slider position --------
+        // TODO: fix the telemetry printing
+        telemetry.addData("Raise value target", raise_value);
+        telemetry.addData("Slider position", robot.slider.getCurrentPositionSlider());
 
         telemetry.update();
     }
