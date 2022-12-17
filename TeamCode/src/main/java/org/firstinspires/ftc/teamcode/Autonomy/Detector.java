@@ -50,7 +50,7 @@ public class Detector {
         boolean tag_found = false;
 
         for (AprilTagDetection tag : current_position) {
-            if (tag.id == Position.LEFT || tag.id == Position.MIDDLE || tag.id == Position.RIGHT) {
+            if (tag.id == 1 || tag.id == 2 || tag.id == 3) {
                 detected_position = tag;
                 tag_found = true;
                 break;
