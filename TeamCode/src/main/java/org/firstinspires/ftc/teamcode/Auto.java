@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Autonomy.AprilTagDetectionPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.Robot.Wheels;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Autonomy.Detector;
@@ -20,12 +21,15 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="Autonomous")
 public class Auto extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+
+    private ScheduledFuture<?> lastMovement = null;
 
     static final double FEET_PER_METER = 3.28084;
     double fx = 578.272;
@@ -41,6 +45,8 @@ public class Auto extends LinearOpMode {
     AprilTagDetection tagOfInterest = null;
     private Detector.Position detectedTag;
     private State state;
+
+    private Wheels wheels;
 
     @Override
     public void runOpMode() {
@@ -121,6 +127,7 @@ public class Auto extends LinearOpMode {
 
         if (tagOfInterest.id == LEFT) {
             detectedTag = Detector.Position.LEFT;
+            lastMovement = wheels.moveFor(0.72, 0.5, Wheels.MoveDirection.FORWARD);
         } else if (tagOfInterest.id == RIGHT) {
             detectedTag = Detector.Position.RIGHT;
         } else if (tagOfInterest.id == MIDDLE) {
