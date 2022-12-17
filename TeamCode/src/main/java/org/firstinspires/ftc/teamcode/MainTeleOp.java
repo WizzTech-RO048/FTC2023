@@ -54,10 +54,10 @@ public class MainTeleOp extends OpMode {
 
         // ------- controlling the gripper -------
         if (controller1.dpadUp()) {
-            robot.gripper.grab();
+            robot.gripper.release();
             // TODO: implement double grabbing
         } else if (controller1.dpadDown()) {
-            robot.gripper.release();
+            robot.gripper.grab();
         }
 
         // ------- controlling the slider positions -----
