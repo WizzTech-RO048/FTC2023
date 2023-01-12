@@ -83,7 +83,7 @@ public class Wheels {
         DcMotor engine = map.get(DcMotor.class, name);
 
         // --------- setting the direction of the engine ---------
-        engine.setDirection(name.contains("left") ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        engine.setDirection(name.contains("right_front") || name.contains("left_front") ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
 
         // ------- setting the encoders for the engine ------
         engine.setMode(useEncoders ? DcMotor.RunMode.RUN_USING_ENCODER : DcMotor.RunMode.RUN_WITHOUT_ENCODER);
