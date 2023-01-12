@@ -21,6 +21,10 @@ public class Utils {
         return f == null || f.isDone();
     }
 
+    public static double clamp(double val, double min, double max) {
+        return Math.max(min, Math.min(val, max));
+    }
+
     public static ScheduledFuture<?> poll(ScheduledExecutorService scheduledExecutorService,
                                           Supplier<Boolean> fn,
                                           Runnable onEnd,
