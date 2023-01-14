@@ -1,22 +1,34 @@
 
 package org.firstinspires.ftc.teamcode.Autonomy;
 
+import android.os.Build;
+import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.R;
+import org.firstinspires.ftc.teamcode.Robot.Robot;
+import org.firstinspires.ftc.teamcode.Robot.Wheels;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous
 public class new_autonomy extends LinearOpMode
 {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+
+    ScheduledExecutorService service;
+    private ScheduledFuture<?> lastMovement;
+    private Robot robot;
 
     static final double FEET_PER_METER = 3.28084;
     double fx = 578.272;
@@ -35,7 +47,7 @@ public class new_autonomy extends LinearOpMode
     public void runOpMode()
     {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
         camera.setPipeline(aprilTagDetectionPipeline);
@@ -135,6 +147,8 @@ public class new_autonomy extends LinearOpMode
         // the ply button was clicked
         // movement phase
 
+
+//        lastMovement = robot.wheels.moveFor(0.72, 0.5, Wheels.MoveDirection.FORWARD);
     }
 
     void tagToTelemetry(AprilTagDetection detection)

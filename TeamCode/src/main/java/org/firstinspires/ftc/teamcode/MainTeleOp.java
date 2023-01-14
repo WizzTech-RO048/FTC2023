@@ -22,7 +22,7 @@ public class MainTeleOp extends OpMode {
     private int k = 0;
     private int raise_value;
     public double RAISE_POWER = 1.0;
-    private ScheduledFuture<?> lastSliderRaised1;
+    private ScheduledFuture<?> lastRightSliderRaised, lastLeftSliderRaised;
 
     @Override
     public void init() {
@@ -46,7 +46,7 @@ public class MainTeleOp extends OpMode {
         controller1.update();
 
         // -------- controlling the robot movement ------
-        double x = -controller1.left_stick_x;
+        double x = controller1.left_stick_x;
         double y = controller1.left_stick_y;
         double r = -controller1.right_stick_x;
 
@@ -54,16 +54,16 @@ public class MainTeleOp extends OpMode {
 
         // ------- controlling the gripper -------
         if (controller1.dpadUp()) {
-            robot.gripper.grab();
+            robot.gripper.release();
             // TODO: implement double grabbing
         } else if (controller1.dpadDown()) {
-            robot.gripper.release();
+            robot.gripper.grab();
         }
 
         // ------- controlling the slider positions -----
-        if(!Utils.isDone(lastSliderRaised1)) { return ; }
-        else if (controller1.YOnce()) { raise_value = 4000; }
-        else if (controller1.BOnce()) { raise_value = 2900; }
+        if(!Utils.isDone(lastRightSliderRaised) || !Utils.isDone(lastLeftSliderRaised)) { return ; }
+        else if (controller1.YOnce()) { raise_value = 4200; }
+        else if (controller1.BOnce()) { raise_value = 3000; }
         else if (controller1.XOnce()) { raise_value = 1400; }
         else if (controller1.AOnce()) { raise_value = 0; }
         else if (raise_value <= 4000 && controller1.right_trigger != 0.0) {
@@ -74,11 +74,13 @@ public class MainTeleOp extends OpMode {
 
         // --------- canceling the slider movement ----------
         if (controller1.rightBumper()) {
-            lastSliderRaised1 = robot.slider.raiseSlider(0, RAISE_POWER);
+            lastLeftSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "left");
+            lastRightSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "right");
         }
 
         // ------- moving the slider -------
-        lastSliderRaised1 = robot.slider.raiseSlider(raise_value, RAISE_POWER);
+        lastLeftSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "left");
+        lastRightSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "right");
 
         // ------- printing the slider position --------
         // TODO: fix the telemetry printing
