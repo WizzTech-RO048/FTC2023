@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import android.os.Build;
+import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Robot.Utils;
 
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,10 +44,10 @@ public class Slider {
         armRaisedPosition = parameters.armRaisedPosition;
     }
 
-    private ScheduledFuture<?> lastMove = null;
+    private ScheduledFuture<?> lastLeftMove = null, lastRightMove = null;
 
-    public ScheduledFuture<?> raiseSlider(int targetPositionValue, double raisePower, String position) {
-        if (!Utils.isDone(lastMove) && !lastMove.cancel(true)) {
+    public ScheduledFuture<?> raiseLeftSlider(int targetPositionValue, double raisePower) {
+        if (!Utils.isDone(lastLeftMove) && !lastLeftMove.cancel(true)) {
             return null;
         }
 
@@ -58,21 +58,33 @@ public class Slider {
             return null;
         }
 
-        if(position.equals("left")) {
-            left_slider.setTargetPosition(targetPositionValue);
-            left_slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            left_slider.setPower(targetPositionValue > initialPosition ? raisePower : -raisePower);
+        left_slider.setTargetPosition(targetPositionValue);
+        left_slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        left_slider.setPower(targetPositionValue > initialPosition ? raisePower : -raisePower);
 
-            lastMove = Utils.poll(scheduler, () -> !left_slider.isBusy(), () -> left_slider.setPower(0), 10, TimeUnit.MILLISECONDS);
-        } else {
-            right_slider.setTargetPosition(targetPositionValue);
-            right_slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            right_slider.setPower(targetPositionValue > initialPosition ? raisePower : -raisePower);
+        lastLeftMove = Utils.poll(scheduler, () -> !left_slider.isBusy(), () -> left_slider.setPower(0), 10, TimeUnit.MILLISECONDS);
 
-            lastMove = Utils.poll(scheduler, () -> !left_slider.isBusy(), () -> right_slider.setPower(0), 10, TimeUnit.MILLISECONDS);
+        return lastLeftMove;
+    }
+
+    public ScheduledFuture<?> raiseRightSlider(int targetPositionValue, double raisePower) {
+        if (!Utils.isDone(lastRightMove) && !lastRightMove.cancel(true)) {
+            return null;
         }
 
-        return lastMove;
+        int initialPosition = right_slider.getCurrentPosition();
+
+        if (targetPositionValue == initialPosition) {
+            return null;
+        }
+
+        right_slider.setTargetPosition(targetPositionValue);
+        right_slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right_slider.setPower(targetPositionValue > initialPosition ? raisePower : -raisePower);
+
+        lastRightMove = Utils.poll(scheduler, () -> !right_slider.isBusy(), () -> right_slider.setPower(0), 10, TimeUnit.MILLISECONDS);
+
+        return lastRightMove;
     }
 
     public int getCurrentPositionSlider() {
