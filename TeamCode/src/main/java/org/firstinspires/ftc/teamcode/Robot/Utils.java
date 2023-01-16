@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import android.os.Build;
+import android.util.Pair;
 import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.*;
@@ -17,7 +18,7 @@ public class Utils {
         return a * factor + b * (1 - p);
     }
 
-    public static boolean isDone(Future<?> f) {
+    public static boolean isDone(ScheduledFuture<?> f) {
         return f == null || f.isDone();
     }
 
