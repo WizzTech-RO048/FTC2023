@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.os.Build;
+import android.util.Pair;
 import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 import java.util.concurrent.Executors;
@@ -22,7 +22,7 @@ public class MainTeleOp extends OpMode {
     private int k = 0;
     private int raise_value;
     public double RAISE_POWER = 1.0;
-    private ScheduledFuture<?> lastRightSliderRaised, lastLeftSliderRaised;
+    private ScheduledFuture<?> lastRightMove, lastLeftMove;
 
     @Override
     public void init() {
@@ -61,7 +61,7 @@ public class MainTeleOp extends OpMode {
         }
 
         // ------- controlling the slider positions -----
-        if(!Utils.isDone(lastRightSliderRaised) || !Utils.isDone(lastLeftSliderRaised)) { return ; }
+        if(!Utils.isDone(lastLeftMove) || !Utils.isDone(lastRightMove)) { return ; }
         else if (controller1.YOnce()) { raise_value = 4200; }
         else if (controller1.BOnce()) { raise_value = 3000; }
         else if (controller1.XOnce()) { raise_value = 1400; }
@@ -74,13 +74,13 @@ public class MainTeleOp extends OpMode {
 
         // --------- canceling the slider movement ----------
         if (controller1.rightBumper()) {
-            lastLeftSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "left");
-            lastRightSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "right");
+            lastLeftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+            lastRightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
         }
 
-        // ------- moving the slider -------
-        lastLeftSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "left");
-        lastRightSliderRaised = robot.slider.raiseSlider(0, RAISE_POWER, "right");
+        // ------- moving the sliders -------
+        lastLeftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+        lastRightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
 
         // ------- printing the slider position --------
         // TODO: fix the telemetry printing
