@@ -24,6 +24,10 @@ public class Robot {
         // --------- initializing the imu sensor --------
         // BNO055IMU imu_sensor = hardwareMap.get(BNO055IMU.class, "imu_sensor");
         // imu_sensor.initialize(new BNO055IMU.Parameters());
+        Imu.Parameters imu_parameters = new Imu.Parameters();
+        imu_parameters.map = hardwareMap;
+        imu_parameters.telemetry = telemetry;
+        imu = new Imu(imu_parameters);
 
         // ----- parsing the parameters for initializing the Wheels class ----
         Wheels.Parameters wheels_parameters = new Wheels.Parameters();
@@ -40,7 +44,8 @@ public class Robot {
         gripper = new Gripper(gripper_parameters);
 
         Slider.Parameters slider_parameters = new Slider.Parameters();
-        slider_parameters.armRaisedPosition = 6100; // 5200 is the maximum
+        slider_parameters.leftSliderLimit = 2500; // 5200 is the maximum
+        slider_parameters.rightSliderLimit = 3000;
         slider_parameters.telemetry = telemetry;
         slider_parameters.hardwareMap = hardwareMap;
         slider_parameters.scheduler = scheduler;
