@@ -18,11 +18,12 @@ public class MainTeleOp extends OpMode {
     private Robot robot;
     private Controller controller1;
 
-    private double speed_limit;
-    private int k = 0;
-    private int raise_value;
+    private int raise_limit = 2800, raise_value;
+    private int rightLimit = 3000, leftLimit = 3000;
     public double RAISE_POWER = 1.0;
-    private ScheduledFuture<?> lastRightMove, lastLeftMove;
+    private Pair<ScheduledFuture<?>, ScheduledFuture<?>> lastMove;
+
+    private boolean gripperOpen = true;
 
     @Override
     public void init() {
@@ -34,7 +35,7 @@ public class MainTeleOp extends OpMode {
         controller1 = new Controller(gamepad1);
 
         // --------- initializing the robot --------
-        robot.gripper.release();
+        gripperOpen = robot.gripper.release();
 
     }
 
@@ -45,47 +46,62 @@ public class MainTeleOp extends OpMode {
     public void loop() {
         controller1.update();
 
+        // ------- printing the slider position --------
+        telemetry.addData("Raise target", raise_value);
+        telemetry.addData("Right slider position", robot.slider.getCurrentPositionSlider("right"));
+        telemetry.addData("left slider position", robot.slider.getCurrentPositionSlider("left"));
+        telemetry.addData("Gripper open", gripperOpen);
+        telemetry.update();
+
         // -------- controlling the robot movement ------
         double x = controller1.left_stick_x;
         double y = controller1.left_stick_y;
         double r = -controller1.right_stick_x;
 
-        robot.wheels.move(y, x, r, true);
+        robot.wheels.move(x, y, r, false);
 
         // ------- controlling the gripper -------
         if (controller1.dpadUp()) {
-            robot.gripper.release();
-            // TODO: implement double grabbing
+            gripperOpen = robot.gripper.release();
         } else if (controller1.dpadDown()) {
-            robot.gripper.grab();
+            gripperOpen = robot.gripper.grab();
         }
+
+        ScheduledFuture<?> rightMove = null, leftMove = null;
 
         // ------- controlling the slider positions -----
-        if(!Utils.isDone(lastLeftMove) || !Utils.isDone(lastRightMove)) { return ; }
-        else if (controller1.YOnce()) { raise_value = 4200; }
-        else if (controller1.BOnce()) { raise_value = 3000; }
-        else if (controller1.XOnce()) { raise_value = 1400; }
-        else if (controller1.AOnce()) { raise_value = 0; }
-        else if (raise_value <= 4000 && controller1.right_trigger != 0.0) {
-            raise_value = (int) (raise_value + controller1.right_trigger * 1000);
+        if(!Utils.isDone(leftMove) || !Utils.isDone(rightMove)) { return ; }
+        else if (controller1.YOnce() && gripperOpen) { // 100%
+            raise_value = raise_limit;
+            leftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+            rightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
+        } else if (controller1.BOnce() && gripperOpen) { // 75%
+            raise_value = (int)((raise_limit * 75) / 100);
+            leftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+            rightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
+        } else if (controller1.XOnce() && gripperOpen) { // 15%
+            raise_value = (int)((raise_limit * 15) / 100);
+            leftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+            rightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
+        } else if (controller1.AOnce()) { // 0%
+            raise_value = 0;
+            gripperOpen = robot.gripper.release();
+            leftMove = robot.slider.raiseLeftSlider(0, RAISE_POWER);
+            rightMove = robot.slider.raiseRightSlider(0, RAISE_POWER);
+        }
+        // ------ controlling the slider raising using the triggers -----
+        else if (raise_value <= raise_limit && controller1.right_trigger != 0.0) {
+            raise_value = (int) (raise_value + controller1.right_trigger * 100);
+            leftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+            rightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
         } else if (raise_value >= 0 && controller1.left_trigger != 0.0) {
-            raise_value = (int) (raise_value - controller1.left_trigger * 1000);
+            raise_value = (int) (raise_value - controller1.left_trigger * 100);
+            leftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
+            rightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
         } else { return ; }
 
-        // --------- canceling the slider movement ----------
-        if (controller1.rightBumper()) {
-            lastLeftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
-            lastRightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
-        }
 
-        // ------- moving the sliders -------
-        lastLeftMove = robot.slider.raiseLeftSlider(raise_value, RAISE_POWER);
-        lastRightMove = robot.slider.raiseRightSlider(raise_value, RAISE_POWER);
 
-        // ------- printing the slider position --------
-        // TODO: fix the telemetry printing
-        telemetry.addData("Raise value target", raise_value);
-        telemetry.addData("Slider position", robot.slider.getCurrentPositionSlider());
 
         telemetry.update();
     }
