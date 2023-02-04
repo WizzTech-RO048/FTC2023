@@ -8,8 +8,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.Objects;
 
 public class Gripper {
-    private final double RELEASE_POSITION = 0.5;
-    private final double GRAB_POSITION = 1.0;
+    private final double RELEASE_POSITION = 0.4;
+    private final double GRAB_POSITION = 0.3;
 
     private final Telemetry telemetry;
     private final HardwareMap hardwareMap;
@@ -23,12 +23,14 @@ public class Gripper {
         gripper = hardwareMap.get(Servo.class, "gripper");
     }
 
-    public void grab() {
+    public boolean grab() {
         gripper.setPosition(GRAB_POSITION);
+        return false;
     }
 
-    public void release() {
+    public boolean release() {
         gripper.setPosition(RELEASE_POSITION);
+        return true;
     }
 
     public static class Parameters {
