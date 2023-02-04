@@ -24,7 +24,7 @@ public class Slider {
 
     private final DcMotorEx left_slider, right_slider;
 
-    private final int armRaisedPosition;
+    private final int leftSliderLimit, rightSliderLimit;
 
     Slider(@NonNull final Parameters parameters) {
         scheduler = Objects.requireNonNull(parameters.scheduler, "Scheduler was not set");
@@ -32,7 +32,7 @@ public class Slider {
         hardwareMap = Objects.requireNonNull(parameters.hardwareMap, "HardwareMap was not set up");
 
         left_slider = hardwareMap.get(DcMotorEx.class, "left_slider");
-        left_slider.setDirection(DcMotorSimple.Direction.REVERSE);
+        left_slider.setDirection(DcMotorSimple.Direction.FORWARD);
         left_slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -41,7 +41,8 @@ public class Slider {
         right_slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         right_slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        armRaisedPosition = parameters.armRaisedPosition;
+        leftSliderLimit = parameters.leftSliderLimit;
+        rightSliderLimit = parameters.rightSliderLimit;
     }
 
     private ScheduledFuture<?> lastLeftMove = null, lastRightMove = null;
@@ -54,7 +55,7 @@ public class Slider {
 //        int targetPosition = (int) Math.floor(Utils.interpolate(0, armRaisedPosition, positionPercentage, 1));
         int initialPosition = left_slider.getCurrentPosition();
 
-        if (targetPositionValue == initialPosition) {
+        if (initialPosition - 50 < targetPositionValue && targetPositionValue < initialPosition + 50) {
             return null;
         }
 
@@ -74,7 +75,7 @@ public class Slider {
 
         int initialPosition = right_slider.getCurrentPosition();
 
-        if (targetPositionValue == initialPosition) {
+        if (initialPosition - 50 < targetPositionValue && targetPositionValue < initialPosition + 50) {
             return null;
         }
 
@@ -87,8 +88,13 @@ public class Slider {
         return lastRightMove;
     }
 
-    public int getCurrentPositionSlider() {
-        int slider_position = left_slider.getCurrentPosition();
+    public int getCurrentPositionSlider(String name) {
+        int slider_position;
+        if (name.contains("right")) {
+            slider_position = right_slider.getCurrentPosition();
+        } else {
+            slider_position = left_slider.getCurrentPosition();
+        }
         return slider_position;
     }
 
@@ -103,7 +109,8 @@ public class Slider {
         public HardwareMap hardwareMap;
         public Telemetry telemetry;
         public ScheduledExecutorService scheduler;
-        public int armRaisedPosition;
+        public int leftSliderLimit;
+        public int rightSliderLimit;
     }
 
 }
