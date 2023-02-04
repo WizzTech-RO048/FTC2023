@@ -27,7 +27,7 @@ public class Imu {
         BNO055IMU.Parameters imu_parameters = new BNO055IMU.Parameters();
         imu_parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu_parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        imu_parameters.calibrationDataFile = "BNO055IMUCalibration.json";
+        imu_parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // TODO: see the calibration file online
         imu_parameters.loggingEnabled = true;
         imu_parameters.loggingTag = "IMU";
         imu_parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
