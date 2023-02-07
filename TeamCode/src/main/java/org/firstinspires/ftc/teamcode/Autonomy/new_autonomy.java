@@ -1,6 +1,7 @@
 
 package org.firstinspires.ftc.teamcode.Autonomy;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -16,6 +17,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
@@ -46,6 +49,12 @@ public class new_autonomy extends LinearOpMode
     @Override
     public void runOpMode()
     {
+        robot = new Robot(
+                hardwareMap,
+                telemetry,
+                Executors.newScheduledThreadPool(1)
+        );
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
@@ -144,11 +153,43 @@ public class new_autonomy extends LinearOpMode
             telemetry.update();
         }
 
-        // the ply button was clicked
-        // movement phase
+
+        // THIS SHIT MIGHT WORK WONDERFULLY, OR FAIL SO BAD
+        waitForStart();
+        boolean wasGripped = robot.gripper.release();
 
 
-//        lastMovement = robot.wheels.moveFor(0.72, 0.5, Wheels.MoveDirection.FORWARD);
+        if ((int)(tagOfInterest.id) == 1) {
+            // move forward, left
+            robot.wheels.move(0, -0.8, 0, true);
+            sleep(2000);
+//            robot.wheels.stopEngines();
+            robot.wheels.move(-0.8, 0, 0, true);
+            sleep(200);
+            robot.wheels.stopEngines();
+
+
+        } else if ((int)(tagOfInterest.id) == 2) {
+            // move forward
+            robot.wheels.move(0, -0.8, 0, true);
+            sleep(2000);
+            robot.wheels.stopEngines();
+
+
+        } else if ((int)(tagOfInterest.id) == 3) {
+            // move forward, right
+            robot.wheels.move(0, -0.8, 0, true);
+            sleep(2000);
+//            robot.wheels.stopEngines();
+            robot.wheels.move(0.8, 0, 0, true);
+            sleep(200);
+            robot.wheels.stopEngines();
+
+        } else {
+            telemetry.addLine("Tag detected");
+        }
+        robot.wheels.stopEngines();
+
     }
 
     void tagToTelemetry(AprilTagDetection detection)
