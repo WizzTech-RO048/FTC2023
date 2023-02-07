@@ -18,7 +18,7 @@ public class MainTeleOp extends OpMode {
     private Robot robot;
     private Controller controller1;
 
-    private int raise_limit = 2800, raise_value;
+    private int raise_limit = 3200, raise_value;
     private int rightLimit = 3000, leftLimit = 3000;
     public double RAISE_POWER = 1.0;
     private Pair<ScheduledFuture<?>, ScheduledFuture<?>> lastMove;
