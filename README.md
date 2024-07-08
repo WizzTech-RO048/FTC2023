@@ -14,6 +14,6 @@ Many thanks to our sponsors ! We are always grateful for having such amazing peo
 
 <img src="images/sponsors.png">
 
-<center style="font-style: italic;"> Created with love and passion 💜 </center>
-<center style="font-style: italic;"> Timisoara, Romania </center>
-<center style="font-style: italic;"> oct 2022 - present </center>
+<center style="font-style: italic;"> Created with love and passion 💜 </center> <br>
+<center style="font-style: italic;"> Timisoara, Romania </center> <br>
+<center style="font-style: italic;"> oct 2022 - may 2023 </center> <br>
